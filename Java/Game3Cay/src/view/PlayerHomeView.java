@@ -5,26 +5,93 @@
  */
 package view;
 
+import controller.ClientControl;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import model.Message;
 import model.Player;
 
 /**
  *
  * @author hieudx
  */
-public class PlayerHomeView extends javax.swing.JFrame {
+public class PlayerHomeView extends javax.swing.JFrame implements ActionListener {
+
     private Player player;
+    private List<Player> listPlayer;
+    DefaultTableModel tm;
+
     /**
      * Creates new form PlayerHomeView
      */
     public PlayerHomeView() {
-        initComponents();  
-    }
-    
-    public PlayerHomeView(Player player) {
         initComponents();
+    }
+
+    public PlayerHomeView(Player player, List<Player> listPlayer) {
+        initComponents();
+        String[] cols = {"Username", "Point"};
+        tm = new DefaultTableModel(cols, 0);
+        tblOnline.setModel(tm);
         this.setLocation(500, 200);
         this.player = player;
+        this.listPlayer = listPlayer;
         lbUsername.setText(player.getUsername());
+        loadListPlayer();
+    }
+
+    public void loadListPlayer() {
+        tm.setRowCount(0);
+        for (Player p : listPlayer) {
+            if (p.getId() != player.getId()) {
+                tm.addRow(p.toObject());
+            }
+        }
+    }
+
+    public Player getPlayerToInvite() {
+        Player player = null;
+        int row = tblOnline.getSelectedRow();
+        if (row < 0 || row > tm.getRowCount()) {
+            showMessage("Select a player to invite");
+            return null;
+        } else {
+            String username = tblOnline.getValueAt(row, 0).toString();
+            for (Player p : listPlayer) {
+                if (p.getUsername().equalsIgnoreCase(username)) {
+                    player = p;
+                }
+            }
+        }
+        return player;
+
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+    }
+
+    public void showMessage(String msg) {
+        JOptionPane.showMessageDialog(this, msg);
+    }
+    
+    public boolean showConfirmDialog(Player p) {
+        int x = JOptionPane.showConfirmDialog(this, p.getUsername() + " invite you to play");
+        if (x == JOptionPane.YES_OPTION) {
+            return true;
+        }
+        return false;
+    }
+
+    public void addActionListener(ActionListener log) {
+        btnInvite.addActionListener(log);
+        btnEnterRoom.addActionListener(log);
     }
 
     /**
@@ -40,7 +107,6 @@ public class PlayerHomeView extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblOnline = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
-        btnRefresh = new javax.swing.JButton();
         btnInvite = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -68,8 +134,6 @@ public class PlayerHomeView extends javax.swing.JFrame {
         jScrollPane1.setViewportView(tblOnline);
 
         jLabel2.setText("Danh sách Online");
-
-        btnRefresh.setText("Làm mới");
 
         btnInvite.setText("Mời");
 
@@ -119,9 +183,7 @@ public class PlayerHomeView extends javax.swing.JFrame {
                 .addComponent(btnEnterRoom)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnInvite)
-                .addGap(45, 45, 45)
-                .addComponent(btnRefresh)
-                .addGap(67, 67, 67))
+                .addGap(140, 140, 140))
             .addGroup(layout.createSequentialGroup()
                 .addGap(258, 258, 258)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -149,7 +211,6 @@ public class PlayerHomeView extends javax.swing.JFrame {
                     .addComponent(jScrollPane1))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnRefresh)
                     .addComponent(btnInvite)
                     .addComponent(btnRefreshRoom)
                     .addComponent(btnEnterRoom))
@@ -159,11 +220,40 @@ public class PlayerHomeView extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-  
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    public List<Player> getListPlayer() {
+        return listPlayer;
+    }
+
+    public void setListPlayer(List<Player> listPlayer) {
+        this.listPlayer = listPlayer;
+    }
+
+    public JButton getBtnEnterRoom() {
+        return btnEnterRoom;
+    }
+
+    public void setBtnEnterRoom(JButton btnEnterRoom) {
+        this.btnEnterRoom = btnEnterRoom;
+    }
+
+    public JButton getBtnInvite() {
+        return btnInvite;
+    }
+
+    public void setBtnInvite(JButton btnInvite) {
+        this.btnInvite = btnInvite;
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEnterRoom;
     private javax.swing.JButton btnInvite;
-    private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnRefreshRoom;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -175,4 +265,5 @@ public class PlayerHomeView extends javax.swing.JFrame {
     private javax.swing.JLabel lbUsername;
     private javax.swing.JTable tblOnline;
     // End of variables declaration//GEN-END:variables
+
 }

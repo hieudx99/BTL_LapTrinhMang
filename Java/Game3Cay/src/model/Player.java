@@ -115,5 +115,10 @@ public class Player implements Serializable{
         this.lastRankTime = lastRankTime;
     }
     
+    public Object[] toObject(){
+        return new Object[]{
+          username, point
+        };
+    }
     
 }

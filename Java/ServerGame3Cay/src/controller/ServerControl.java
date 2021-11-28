@@ -20,8 +20,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.Credential;
 import model.Message;
 import model.Player;
 
@@ -30,6 +33,7 @@ public class ServerControl {
     private Connection con;
     private ServerSocket myServer;
     private int serverPort = 8888;
+    private List<Credential> listClient = new ArrayList<>();
 
     public ServerControl() {
         getDBConnection("laptrinhmang", "root", "b18dcdt073");
@@ -71,29 +75,17 @@ public class ServerControl {
     private void listenning() {
         try {
             System.out.println("Listenning...");
-            Socket clientSocket = myServer.accept();
-            ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
-            ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
-            Message rcd_msg = (Message) ois.readObject();
-            if (rcd_msg.getMessage().equalsIgnoreCase("check login")) {
-                Player player = (Player) rcd_msg.getObject();
-                boolean result = checkUser(player);
-                Message send_msg = new Message();
-                if (result == true) {
-                    send_msg.setMessage("ok");
-                    send_msg.setObject(player);
-                    oos.writeObject(send_msg);
-                } else if (result == false) {
-                    send_msg.setMessage("false");
-                    send_msg.setObject(null);
-                }
-            }
+            Socket client = myServer.accept();
+            System.out.println("Đã kết nối với: " + client);
+            ClientHandler clientHandler = new ClientHandler(client);
+            clientHandler.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private boolean checkUser(Player player) {
+    //
+    private boolean checkLogin(Player player) {
         boolean result = false;
         String sql = "SELECT * FROM tblPlayer WHERE username = '"
                 + player.getUsername() + "' AND password = '"
@@ -123,5 +115,108 @@ public class ServerControl {
             result = false;
         }
         return result;
+    }
+
+    private List<Player> getListPlayer() {
+        List<Player> listPlayer = new ArrayList<>();
+        for (Credential cred : listClient) {
+            listPlayer.add(cred.getPlayer());
+        }
+        return listPlayer;
+    }
+
+    class ClientHandler extends Thread {
+
+        private Socket client;
+        private Player player;
+        //ObjectInputStream ois;
+        //ObjectOutputStream oos;
+
+        public ClientHandler(Socket client) {
+            this.client = client;
+            //this.ois = new ObjectInputStream(client.getInputStream());
+            //this.oos = new ObjectOutputStream(client.getOutputStream());
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
+                    //ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
+                    Message rcd_msg = (Message) ois.readObject();
+                    //Tao send_message gui client co Msg = receive message
+                    Message send_msg = new Message();
+                    switch (rcd_msg.getMsg()) {
+                        case "login":
+                            Player p = (Player) rcd_msg.getObj();
+                            boolean result = checkLogin(p);
+                            if (result == true) {
+                                send_msg.setMsg(rcd_msg.getMsg());
+                                send_msg.setObj(p);
+                                this.player = p;
+                                Credential credential = new Credential(client, player);
+                                listClient.add(credential);
+                            } else {
+                                send_msg.setMsg(rcd_msg.getMsg());
+                                send_msg.setObj(null);
+                            }
+                            ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
+                            oos.writeObject(send_msg);
+                            break;
+                        case "getListPlayer":
+                            List<Player> listPlayer = getListPlayer();
+                            send_msg.setMsg(rcd_msg.getMsg());
+                            send_msg.setObj(listPlayer);
+                            ObjectOutputStream oos1 = new ObjectOutputStream(client.getOutputStream());
+                            oos1.writeObject(send_msg);
+                            for (Credential cred : listClient) {
+                                if (cred.getClient() != client) {
+                                    send_msg.setMsg("loadListPlayer");
+                                    ObjectOutputStream oos2 = new ObjectOutputStream(cred.getClient().getOutputStream());
+                                    oos2.writeObject(send_msg);
+                                }
+                            }
+                            break;
+                        case "inviteToPlay":
+                            Player toPlayer = (Player) rcd_msg.getObj();
+                            Player fromPlayer = null;
+                            for (Credential cred : listClient) {
+                                if (client == cred.getClient()) {
+                                    fromPlayer = cred.getPlayer();
+                                    break;
+                                }
+                            }
+                            for (Credential cred : listClient) {
+                                if (cred.getPlayer().getId() == toPlayer.getId()) {
+                                    send_msg.setMsg(rcd_msg.getMsg());
+                                    send_msg.setObj(fromPlayer);
+                                    ObjectOutputStream oos3 = new ObjectOutputStream(cred.getClient().getOutputStream());
+                                    oos3.writeObject(send_msg);
+                                    break;
+                                }
+                            }
+                            break;
+                        //no la thang nay
+                        case "acceptToPlay":
+                            Player fromPlayer1 = (Player) rcd_msg.getObj();
+                            for (Credential cred : listClient) {
+                                if (cred.getPlayer().getId() == fromPlayer1.getId()) {
+                                    send_msg.setMsg(rcd_msg.getMsg());
+                                    send_msg.setObj(null);
+                                    ObjectOutputStream oos4 = new ObjectOutputStream(cred.getClient().getOutputStream());
+                                    oos4.writeObject(send_msg);
+                                    break;
+                                }
+                            }
+                           break; 
+                    }
+                }
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+        }
     }
 }

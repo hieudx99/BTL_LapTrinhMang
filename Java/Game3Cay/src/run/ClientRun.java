@@ -5,7 +5,9 @@
  */
 package run;
 
-import view.Login;
+import controller.ClientControl;
+import java.io.IOException;
+import view.LoginView;
 
 /**
  *
@@ -13,9 +15,8 @@ import view.Login;
  */
 public class ClientRun {
 
-    public static void main(String[] args) {
-        Login login = new Login();
-        login.setVisible(true);
+    public static void main(String[] args) throws IOException {
+        ClientControl clientControl = new ClientControl();
     }
     
     

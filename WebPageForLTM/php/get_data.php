@@ -33,10 +33,8 @@ function showPLayerRow($seq_no, $row)
     <th scope="row"><?php echo $seq_no; ?></th>
     <td><?php echo $row['username'] ?></td>
     <td><?php echo $row['point']; ?></td>
-    <td><?php echo $row['firstRankTime']; ?></td>
-    <td><?php echo $row['secondRankTime']; ?></td>
-    <td><?php echo $row['thirdRankTime']; ?></td>
-    <td><?php echo $row['lastRankTime']; ?></td>
+    <td><?php echo $row['winTotal']; ?></td>
+    <td><?php echo $row['loseTotal']; ?></td>
 </tr>
 <?php
 }
@@ -66,6 +64,7 @@ function displayMatchHistory($row)
     <td><?php echo $row[2]; ?></td>
     <td><?php echo $row[3]; ?></td>
     <td><?php echo $row[4]; ?></td>
+    <td><?php echo $row[5]; ?></td>
 </tr>
 <?php
 
@@ -75,52 +74,50 @@ function showMatchHistory($id)
 {
     require "db_connection.php";
     if ($con) {
-        $queryMatch = "SELECT id, firstRank, secondRank, thirdRank, lastRank FROM tblMatch WHERE firstRank = $id OR secondRank =
-$id OR thirdRank = $id OR lastRank = $id ORDER BY id DESC";
-        $resultAllMatch = mysqli_query($con, $queryMatch);
-        while ($rowQueryMatch = mysqli_fetch_array($resultAllMatch)) {
+        $query1 = "SELECT * FROM tbldealtcard WHERE tblPlayerid = $id ORDER BY id DESC";
+        $result1 = mysqli_query($con, $query1);
+        while ($rowQuery1 = mysqli_fetch_array($result1)) {
             $data = array();
-            $data[] = $rowQueryMatch['id'];
-            $firstRank = $rowQueryMatch['firstRank'];
-            $secondRank = $rowQueryMatch['secondRank'];
-            $thirdRank = $rowQueryMatch['thirdRank'];
-            $lastRank = $rowQueryMatch['lastRank'];
-            if ($firstRank != null) {
-                $queryFirstRankUsername = "SELECT username FROM tblPlayer WHERE id = $firstRank";
-                $result = mysqli_query($con, $queryFirstRankUsername);
-                if (($row = mysqli_fetch_array($result))) {
-                    $data[] = $row['username'];
-                }
-            } else {
-                $data[] = "";
+            $matchId = $rowQuery1['tblMatchid'];
+            $selectedUserId = $rowQuery1['tblPlayerid'];
+            $totalValueSelectedUser = $rowQuery1['totalValue'];
+
+            // get match,date
+            $data[] = $matchId;
+            $query2 = "SELECT `date` FROM tblMatch WHERE id = $matchId";
+            $result = mysqli_query($con, $query2);
+            if (($row = mysqli_fetch_array($result))) {
+                $data[] = $row['date'];
             }
-            if ($secondRank != null) {
-                $querySecondRankUsername = "SELECT username FROM tblPlayer WHERE id = $secondRank";
-                $result = mysqli_query($con, $querySecondRankUsername);
-                if (($row = mysqli_fetch_array($result))) {
-                    $data[] = $row['username'];
-                }
+            // get status selected user
+            $winLoseStatus = $rowQuery1['position'];
+            if ($winLoseStatus == 0) {
+                $data[] = "Win";
+            } else if ($winLoseStatus == 2) {
+                $data[] = "Draw";
             } else {
-                $data[] = "";
+                $data[] = "Lose";
             }
-            if ($thirdRank != null) {
-                $queryThirdRankUsername = "SELECT username FROM tblPlayer WHERE id = $thirdRank";
-                $result = mysqli_query($con, $queryThirdRankUsername);
-                if (($row = mysqli_fetch_array($result))) {
-                    $data[] = $row['username'];
-                }
-            } else {
-                $data[] = "";
+
+            // get opponent id, totalValue
+            $matchId = $rowQuery1['tblMatchid'];
+            $query3 = "SELECT * FROM tbldealtcard WHERE tblMatchid = $matchId AND tblPlayerid <> $selectedUserId";
+            $result = mysqli_query($con, $query3);
+            if (($row = mysqli_fetch_array($result))) {
+                $totalValueOpponent = $row['totalValue'];
+                $opponentId = $row['tblPlayerid'];
             }
-            if ($lastRank != null) {
-                $queryLastRankUsername = "SELECT username FROM tblPlayer WHERE id = $lastRank";
-                $result = mysqli_query($con, $queryLastRankUsername);
-                if (($row = mysqli_fetch_array($result))) {
-                    $data[] = $row['username'];
-                }
-            } else {
-                $data[] = "";
+
+            // get opponent name
+            $queryUsernameOpponent = "SELECT username FROM tblplayer WHERE id = $opponentId";
+            $result = mysqli_query($con, $queryUsernameOpponent);
+            if (($row = mysqli_fetch_array($result))) {
+                $data[] = $row['username'];
             }
+
+            $data[] = $totalValueSelectedUser;
+            $data[] = $totalValueOpponent;
+
             displayMatchHistory($data);
         }
     }

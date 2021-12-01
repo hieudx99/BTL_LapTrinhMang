@@ -15,10 +15,8 @@
         <h3 class="text-center mb-5">Statistics Game "3 cay"</h3>
         <select class="form-select mb-4" aria-label="Default select example" onChange="getSortedStatistic(this.value)">
             <option value="point">Total Point</option>
-            <option value="firstRankTime">1st In Game</option>
-            <option value="secondRankTime">2nd In Game</option>
-            <option value="thirdRankTime">3rd In Game</option>
-            <option value="lastRankTime">4th In Game</option>
+            <option value="winTotal">Total Win</option>
+            <option value="loseTotal">Total Lose</option>
         </select>
         <table class="table table-striped border">
             <thead>
@@ -26,10 +24,8 @@
                     <th scope="col">#</th>
                     <th scope="col">Player</th>
                     <th scope="col">Total Point</th>
-                    <th scope="col">1st In Game Total</th>
-                    <th scope="col">2nd In Game Total</th>
-                    <th scope="col">3rd In Game Total</th>
-                    <th scope="col">4th In Game Total</th>
+                    <th scope="col">Total Win</th>
+                    <th scope="col">Total Lose</th>
                 </tr>
             </thead>
             <tbody id="player-list">

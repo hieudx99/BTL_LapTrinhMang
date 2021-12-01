@@ -20,10 +20,11 @@
             <thead>
                 <tr>
                     <th scope="col">Match ID</th>
-                    <th scope="col">First Rank</th>
-                    <th scope="col">Second Rank</th>
-                    <th scope="col">Third Rank</th>
-                    <th scope="col">Last Rank</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status(Win, Lose, Draw)</th>
+                    <th scope="col">Opponent name</th>
+                    <th scope="col">Your point</th>
+                    <th scope="col">Opponent point</th>
                 </tr>
             </thead>
             <tbody id="match-history-list">

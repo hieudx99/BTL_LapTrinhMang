@@ -1,0 +1,42 @@
+body {
+    background: #ba5370;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #ba5370, #f4e2d8);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #ba5370, #f4e2d8);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+h3 {
+    color: #fff;
+}
+
+.wrapper__table {
+    padding: 16px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 5px;
+    margin-bottom: 100px;
+}
+
+.wrapper__chart {
+    background-color: #fff;
+    padding: 8px;
+    border-radius: 10px;
+    box-shadow: 5px;
+    margin-bottom: 24px;
+}
+
+#myChart {
+    max-height: 250px !important;
+}
+
+.form-select {
+    border-radius: 10px;
+}
+
+#back__button {
+    background: linear-gradient(#E15FA7, #cf0072);
+    color: #fff;
+    border: 0;
+}

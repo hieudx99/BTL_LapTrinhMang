@@ -3,6 +3,7 @@ require "db_connection.php";
 
 if ($con) {
     if (isset($_GET["action"]) && $_GET["action"] == "sort") {
+
         sortPlayer($_GET["option"]);
     }
 
@@ -10,20 +11,10 @@ if ($con) {
         showMatchHistory($_GET["id"]);
     }
 
-}
-
-function getInitialData()
-{
-    require "db_connection.php";
-    if ($con) {
-        $seq_no = 0;
-        $query = "SELECT * FROM tblPlayer";
-        $result = mysqli_query($con, $query);
-        while ($row = mysqli_fetch_array($result)) {
-            $seq_no++;
-            showPLayerRow($seq_no, $row);
-        }
+    if (isset($_GET["action"]) && $_GET["action"] == "get_json_data") {
+        sendData();
     }
+
 }
 
 function showPLayerRow($seq_no, $row)
@@ -37,6 +28,21 @@ function showPLayerRow($seq_no, $row)
     <td><?php echo $row['loseTotal']; ?></td>
 </tr>
 <?php
+}
+
+function sendData()
+{
+    require "db_connection.php";
+    $data = array();
+    if ($con) {
+        $query = "SELECT * FROM tblPlayer";
+        $result = mysqli_query($con, $query);
+        while ($row = mysqli_fetch_array($result)) {
+            $data[] = $row;
+        }
+        echo json_encode($data);
+    }
+
 }
 
 function sortPlayer($option)

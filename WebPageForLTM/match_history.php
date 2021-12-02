@@ -20,7 +20,7 @@
                 page</button>
         </div>
         <div class="wrapper__table">
-            <table class="table table-striped border mb-0">
+            <table class="table border mb-0">
                 <thead>
                     <tr>
                         <th scope="col">Match ID</th>

@@ -76,12 +76,31 @@ function displayMatchHistory($row)
 
 }
 
+function displayEmptyState()
+{
+    ?>
+<tr>
+    <td colspan="6">
+        <div id="empty-state">
+            <img src="binoculars.svg" alt="No Result Found">
+            <h4 class="mt-3">No Result Found</h4>
+        </div>
+    </td>
+</tr>
+<?php
+
+}
+
 function showMatchHistory($id)
 {
     require "db_connection.php";
     if ($con) {
         $query1 = "SELECT * FROM tbldealtcard WHERE tblPlayerid = $id ORDER BY id DESC";
         $result1 = mysqli_query($con, $query1);
+        if (mysqli_fetch_array($result1) == null) {
+            displayEmptyState();
+            return;
+        }
         while ($rowQuery1 = mysqli_fetch_array($result1)) {
             $data = array();
             $matchId = $rowQuery1['tblMatchid'];

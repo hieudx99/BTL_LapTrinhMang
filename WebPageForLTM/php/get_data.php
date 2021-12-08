@@ -97,11 +97,11 @@ function showMatchHistory($id)
     if ($con) {
         $query1 = "SELECT * FROM tbldealtcard WHERE tblPlayerid = $id ORDER BY id DESC";
         $result1 = mysqli_query($con, $query1);
-        if (mysqli_fetch_array($result1) == null) {
+        if (mysqli_num_rows($result1) == 0) {
             displayEmptyState();
             return;
         }
-        while ($rowQuery1 = mysqli_fetch_array($result1)) {
+        while ($rowQuery1 = mysqli_fetch_assoc($result1)) {
             $data = array();
             $matchId = $rowQuery1['tblMatchid'];
             $selectedUserId = $rowQuery1['tblPlayerid'];
@@ -111,7 +111,7 @@ function showMatchHistory($id)
             $data[] = $matchId;
             $query2 = "SELECT `date` FROM tblMatch WHERE id = $matchId";
             $result = mysqli_query($con, $query2);
-            if (($row = mysqli_fetch_array($result))) {
+            if (($row = mysqli_fetch_assoc($result))) {
                 $data[] = $row['date'];
             }
             // get status selected user
@@ -128,7 +128,7 @@ function showMatchHistory($id)
             $matchId = $rowQuery1['tblMatchid'];
             $query3 = "SELECT * FROM tbldealtcard WHERE tblMatchid = $matchId AND tblPlayerid <> $selectedUserId";
             $result = mysqli_query($con, $query3);
-            if (($row = mysqli_fetch_array($result))) {
+            if (($row = mysqli_fetch_assoc($result))) {
                 $totalValueOpponent = $row['totalValue'];
                 $opponentId = $row['tblPlayerid'];
             }
@@ -136,7 +136,7 @@ function showMatchHistory($id)
             // get opponent name
             $queryUsernameOpponent = "SELECT username FROM tblplayer WHERE id = $opponentId";
             $result = mysqli_query($con, $queryUsernameOpponent);
-            if (($row = mysqli_fetch_array($result))) {
+            if (($row = mysqli_fetch_assoc($result))) {
                 $data[] = $row['username'];
             }
 
